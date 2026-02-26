@@ -2,12 +2,15 @@
   "name": "treinos-api",
   "version": "1.0.0",
   "description": "",
-  "type": "module", 
+  "type": "module",
   "scripts": {
     "dev": "tsx --watch src/index.ts"
   },
   "keywords": [],
   "author": "",
+  "engines": {
+    "node": "24.x"
+  },
   "license": "ISC",
   "packageManager": "pnpm@10.30.2",
   "devDependencies": {
