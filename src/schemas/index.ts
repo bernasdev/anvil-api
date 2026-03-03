@@ -12,11 +12,12 @@ export const WorkoutPlanSchema = z.object({
   name: z.string().trim().min(1),
   workoutDays: z.array(
     z.object({
+      id: z.uuid().optional(),
       name: z.string().trim().min(1),
       weekDay: z.enum(WeekDay),
       isRestDay: z.boolean().default(false),
       estimatedDurationInSeconds: z.number().min(1),
-      coverImageUrl: z.url().optional(),
+      coverImageUrl: z.string().url().optional(),
       exercises: z.array(
         z.object({
           order: z.number().min(0),
@@ -28,4 +29,8 @@ export const WorkoutPlanSchema = z.object({
       ),
     }),
   ),
+});
+
+export const WorkoutSessionResponseSchema = z.object({
+  userWorkoutSessionId: z.uuid(),
 });
