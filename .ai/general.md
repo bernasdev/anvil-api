@@ -73,6 +73,11 @@ pnpm eslint .               # Executa ESLint
 
 Swagger UI disponível em `/docs` quando o servidor está rodando (porta 4949).
 
+## Convenções de Código
+
+- **Zod**: Nunca use redundâncias como `z.string().uuid()`. Use sempre o atalho direto `z.uuid()`, `z.url()`, `z.email()`, etc.
+- **Datas**: Sempre use os validadores ISO do Zod (`z.iso.date()`, `z.iso.datetime()`, etc.) ao invés de regex manuais para validação de strings de data.
+
 ## MCPs
 
 - **SEMPRE** use Context7 para buscar documentações
