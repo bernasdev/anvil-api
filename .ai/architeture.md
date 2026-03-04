@@ -19,6 +19,8 @@
 - **SEMPRE** trate os erros lançados pelo use case.
 - **SEMPRE** inclua `tags` e `summary` no schema da rota para documentação no Swagger/OpenAPI.
 
+- quando que for usar weekDay nos schemas, use z.enum(WeekDay) importado do prisma.
+
 ### Exemplo:
 
 ```ts

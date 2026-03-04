@@ -28,7 +28,7 @@ export class WorkoutPlanNotActiveError extends Error {
 
 export class SessionAlreadyStartedError extends Error {
   constructor(message: string) {
-    super (message);
-    this.name = "SessionAlreadyStartedError"
+    super(message);
+    this.name = "SessionAlreadyStartedError";
   }
 }

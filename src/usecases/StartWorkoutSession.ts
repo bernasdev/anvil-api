@@ -39,13 +39,14 @@ export class StartWorkoutSession {
       throw new WorkoutPlanNotActiveError("Workout plan is not active");
     }
 
-    // const workoutDay = workoutPlan.workoutDays[0]; 
+    // const workoutDay = workoutPlan.workoutDays[0];
 
-    const workoutDay =  await prisma.workoutDay.findUnique({
+    const workoutDay = await prisma.workoutDay.findUnique({
       where: {
-        id: dto.workoutDayId, workoutPlanId: dto.workoutPlanId
-      }
-    })
+        id: dto.workoutDayId,
+        workoutPlanId: dto.workoutPlanId,
+      },
+    });
     if (!workoutDay) {
       throw new NotFoundError("Workout day not found in this plan");
     }
@@ -58,7 +59,9 @@ export class StartWorkoutSession {
     });
 
     if (existingSession) {
-      throw new SessionAlreadyStartedError("A session is already started for this day");
+      throw new SessionAlreadyStartedError(
+        "A session is already started for this day",
+      );
     }
 
     const session = await prisma.workoutSession.create({
