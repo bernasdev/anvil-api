@@ -60,7 +60,7 @@ export const GetHomeDataResponseSchema = z.object({
       isRest: z.boolean(),
       weekDay: z.enum(WeekDay),
       estimatedDurationInSeconds: z.number(),
-      coverImageUrl: z.url().optional(),
+      coverImageUrl: z.url().optional().nullable(),
       exercisesCount: z.number(),
     })
     .nullable(),
@@ -80,7 +80,7 @@ export const GetWorkoutPlanResponseSchema = z.object({
   workoutDays: z.array(
     z.object({
       id: z.uuid(),
-      weekDay: z.nativeEnum(WeekDay),
+      weekDay: z.enum(WeekDay),
       name: z.string(),
       isRest: z.boolean(),
       imageCoverUrl: z.url().optional().nullable(),
@@ -103,7 +103,7 @@ export const GetWorkoutPlansResponseSchema = z.array(
       z.object({
         id: z.uuid(),
         name: z.string(),
-        weekDay: z.nativeEnum(WeekDay),
+        weekDay: z.enum(WeekDay),
         isRest: z.boolean(),
         estimatedDurationInSeconds: z.number(),
         coverImageUrl: z.url().optional().nullable(),
@@ -168,3 +168,18 @@ export const GetWorkoutDayResponseSchema = z.object({
     }),
   ),
 });
+
+export const UserTrainDataSchema = z.object({
+  userId: z.string(),
+  userName: z.string(),
+  weightInGrams: z.number().int().min(0),
+  heightInCentimeters: z.number().int().min(0),
+  age: z.number().int().min(0),
+  bodyFatPercentage: z.number().int().min(0).max(100),
+});
+
+export const UpsertUserTrainDataSchema = UserTrainDataSchema.omit({
+  userName: true,
+});
+
+export const GetUserTrainDataResponseSchema = UserTrainDataSchema.nullable();
