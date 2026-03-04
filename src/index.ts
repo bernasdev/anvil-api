@@ -13,6 +13,7 @@ import {
 import z from "zod/v4";
 
 import { auth } from "./lib/auth.js";
+import { aiRoutes } from "./routes/ai.js";
 import { homeRoutes } from "./routes/home.js";
 import { userRoutes } from "./routes/me.js";
 import { statsRoutes } from "./routes/stats.js";
@@ -101,6 +102,7 @@ await app.register(workoutPlanRoutes, { prefix: "/workout-plans" });
 await app.register(homeRoutes, { prefix: "/" });
 await app.register(statsRoutes, { prefix: "/stats" });
 await app.register(userRoutes, { prefix: "/me" });
+await app.register(aiRoutes, { prefix: "/ai" });
 
 app.route({
   method: ["GET", "POST"],
