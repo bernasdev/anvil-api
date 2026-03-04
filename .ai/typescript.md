@@ -33,6 +33,6 @@ paths:
 ## Zod
 
 - **SEMPRE** use Zod v4.
-- **NUNCA** use redundância no Zod (ex: `z.string().uuid()`). **SEMPRE** use o atalho direto (ex: `z.uuid()`). Isso se aplica a `z.uuid()`, `z.url()`, `z.email()`, `z.datetime()`, etc.
+- **NUNCA** use redundância no Zod (ex: `z.string().uuid()`). **SEMPRE** use o atalho direto (ex: `z.uuid()`). Isso se aplica a `z.uuid()`, `z.url()`, `z.email()`, `z.datetime()`, etc. Outro exemplo: `z.string().url().optional().nullable(),` deve ser `z.url().optional(),`
 - Busque sempre validar os dados com o Zod da melhor maneira possível. Exemplo: use z.url(), z.date() etc.
 - **SEMPRE** use os validadores de data ISO do Zod ao invés de regex manuais: `z.iso.date()` para datas (YYYY-MM-DD), `z.iso.datetime()` para timestamps ISO, `z.iso.time()` para horários e `z.iso.duration()` para durações.

@@ -21,6 +21,7 @@
 
 - quando que for usar weekDay nos schemas, use z.enum(WeekDay) importado do prisma.
 
+
 ### Exemplo:
 
 ```ts
