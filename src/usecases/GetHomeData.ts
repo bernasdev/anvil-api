@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone.js";
 import utc from "dayjs/plugin/utc.js";
 import weekday from "dayjs/plugin/weekday.js";
 
@@ -8,15 +9,17 @@ import { prisma } from "../lib/db.js";
 
 dayjs.extend(utc);
 dayjs.extend(weekday);
+dayjs.extend(timezone);
 
 interface InputDto {
   userId: string;
   date: string; // YYYY-MM-DD
+  timezone: string;
 }
 
 interface OutputDto {
   activeWorkoutPlanId: string;
-  todayWorkoutDay: {
+  todayWorkoutDay?: {
     workoutPlanId: string;
     id: string;
     name: string;
@@ -25,7 +28,7 @@ interface OutputDto {
     estimatedDurationInSeconds: number;
     coverImageUrl?: string | null;
     exercisesCount: number;
-  } | null;
+  };
   workoutStreak: number;
   consistencyByDay: Record<
     string,
@@ -38,7 +41,8 @@ interface OutputDto {
 
 export class GetHomeData {
   async execute(dto: InputDto): Promise<OutputDto> {
-    const targetDate = dayjs.utc(dto.date).startOf("day");
+    const userTz = dto.timezone;
+    const targetDate = dayjs.tz(dto.date, userTz).startOf("day");
     const weekDayOfTargetDate = targetDate
       .format("dddd")
       .toUpperCase() as WeekDay;
@@ -76,7 +80,7 @@ export class GetHomeData {
           coverImageUrl: todayWorkoutDay.coverImageUrl,
           exercisesCount: todayWorkoutDay.exercises.length,
         }
-      : null;
+      : undefined;
 
     // Calculate Consistency for the current week (Sunday to Saturday)
     const startOfWeek = targetDate.startOf("week"); // Default is Sunday
@@ -100,9 +104,9 @@ export class GetHomeData {
     for (let i = 0; i < 7; i++) {
       const currentDay = startOfWeek.add(i, "day");
       const dayKey = currentDay.format("YYYY-MM-DD");
-      
+
       const sessionsForDay = sessionsThisWeek.filter((s) =>
-        dayjs.utc(s.startedAt).isSame(currentDay, "day"),
+        dayjs(s.startedAt).tz(userTz).isSame(currentDay, "day"),
       );
 
       consistencyByDay[dayKey] = {
@@ -112,7 +116,7 @@ export class GetHomeData {
     }
 
     // Calculate Streak: Consecutive days with at least one completed session
-    const workoutStreak = await this.calculateStreak(dto.userId);
+    const workoutStreak = await this.calculateStreak(dto.userId, userTz);
 
     return {
       activeWorkoutPlanId: activeWorkoutPlan.id,
@@ -122,7 +126,7 @@ export class GetHomeData {
     };
   }
 
-  private async calculateStreak(userId: string): Promise<number> {
+  private async calculateStreak(userId: string, userTz: string): Promise<number> {
     const sessions = await prisma.workoutSession.findMany({
       where: {
         workoutDay: {
@@ -147,14 +151,16 @@ export class GetHomeData {
     // Get unique completed days in descending order
     const completedDays = Array.from(
       new Set(
-        sessions.map((s) => dayjs.utc(s.completedAt).startOf("day").valueOf()),
+        sessions.map((s) =>
+          dayjs(s.completedAt).tz(userTz).startOf("day").valueOf(),
+        ),
       ),
     ).sort((a, b) => b - a);
 
-    const today = dayjs.utc().startOf("day");
+    const today = dayjs.tz(undefined, userTz).startOf("day");
     const yesterday = today.subtract(1, "day");
 
-    let currentStreakDate = dayjs.utc(completedDays[0]);
+    let currentStreakDate = dayjs.tz(completedDays[0], userTz);
 
     // If the most recent completion is not today or yesterday, streak is 0
     if (
@@ -166,7 +172,7 @@ export class GetHomeData {
 
     let streak = 1;
     for (let i = 1; i < completedDays.length; i++) {
-      const previousDay = dayjs.utc(completedDays[i]);
+      const previousDay = dayjs.tz(completedDays[i], userTz);
       const expectedDate = currentStreakDate.subtract(1, "day");
 
       if (previousDay.isSame(expectedDate, "day")) {
