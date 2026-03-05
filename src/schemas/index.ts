@@ -63,7 +63,7 @@ export const GetHomeDataResponseSchema = z.object({
       coverImageUrl: z.url().optional().nullable(),
       exercisesCount: z.number(),
     })
-    .nullable(),
+    .optional(),
   workoutStreak: z.number(),
   consistencyByDay: z.record(
     z.iso.date(),

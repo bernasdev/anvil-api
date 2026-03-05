@@ -120,7 +120,7 @@ export class GetHomeData {
 
     return {
       activeWorkoutPlanId: activeWorkoutPlan.id,
-      todayWorkoutDay: todayWorkoutDayFormatted,
+      todayWorkoutDay: todayWorkoutDayFormatted ?? undefined,
       workoutStreak,
       consistencyByDay,
     };
