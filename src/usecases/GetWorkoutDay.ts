@@ -28,6 +28,7 @@ interface OutputDto {
   }>;
   weekDay: WeekDay;
   sessions: Array<{
+    id: string;
     workoutDayId: string;
     startedAt?: string;
     completedAt?: string;
@@ -89,6 +90,7 @@ export class GetWorkoutDay {
       })),
       weekDay: workoutDay.weekDay,
       sessions: workoutDay.sessions.map((session) => ({
+        id: session.id,
         workoutDayId: session.workoutDayId,
         startedAt: dayjs(session.startedAt).format("YYYY-MM-DD"),
         completedAt: session.completedAt

@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { google } from "@ai-sdk/google";
 import {
   convertToModelMessages,
   stepCountIs,
@@ -21,7 +21,7 @@ import { UpsertUserTrainData } from "../usecases/UpsertUserTrainData.js";
 export const aiRoutes = async (app: FastifyInstance) => {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: "POST",
-    url: "/ai",
+    url: "/",
     schema: {
       tags: ["AI"],
       summary: "AI Chat with Personal Trainer",
@@ -43,7 +43,7 @@ export const aiRoutes = async (app: FastifyInstance) => {
       const { messages } = request.body as { messages: UIMessage[] };
 
       const result = streamText({
-        model: openai("gpt-4o-mini"),
+        model: google('gemini-2.5-flash'),
         system: `Você é um personal trainer virtual especialista em montagem de planos de treino.
 Seu tom é amigável, motivador e você usa linguagem simples, sem jargões técnicos, pois seu público é leigo em musculação.
 
@@ -87,7 +87,8 @@ REGRAS OBRIGATÓRIAS:
         messages: await convertToModelMessages(messages),
         tools: {
           getUserTrainData: tool({
-            description: "Retorna os dados de treino do usuário (peso, altura, idade, etc).",
+            description:
+              "Retorna os dados de treino do usuário (peso, altura, idade, etc).",
             inputSchema: z.object({}),
             execute: async () => {
               const usecase = new GetUserTrainData();
@@ -98,9 +99,15 @@ REGRAS OBRIGATÓRIAS:
             description: "Cria ou atualiza os dados de treino do usuário.",
             inputSchema: z.object({
               weightInGrams: z.number().int().describe("Peso em gramas"),
-              heightInCentimeters: z.number().int().describe("Altura em centímetros"),
+              heightInCentimeters: z
+                .number()
+                .int()
+                .describe("Altura em centímetros"),
               age: z.number().int().describe("Idade"),
-              bodyFatPercentage: z.number().int().describe("Percentual de gordura corporal (0 a 100)"),
+              bodyFatPercentage: z
+                .number()
+                .int()
+                .describe("Percentual de gordura corporal (0 a 100)"),
             }),
             execute: async (input) => {
               const usecase = new UpsertUserTrainData();
@@ -122,24 +129,45 @@ REGRAS OBRIGATÓRIAS:
             description: "Cria um novo plano de treino completo.",
             inputSchema: z.object({
               name: z.string().describe("Nome do plano de treino"),
-              workoutDays: z.array(
-                z.object({
-                  name: z.string().describe("Nome do dia (ex: Peito e Tríceps, Descanso)"),
-                  weekDay: z.enum(WeekDay).describe("Dia da semana"),
-                  isRestDay: z.boolean().describe("Se é dia de descanso (true) ou treino (false)"),
-                  estimatedDurationInSeconds: z.number().describe("Duração estimada em segundos (0 para descanso)"),
-                  coverImageUrl: z.string().url().describe("URL da imagem de capa"),
-                  exercises: z.array(
-                    z.object({
-                      order: z.number().min(0),
-                      name: z.string().trim().min(1),
-                      sets: z.number().min(1),
-                      reps: z.number().min(1),
-                      restTimeInSeconds: z.number().min(1),
-                    })
-                  ).describe("Lista de exercícios (vazia para dias de descanso)"),
-                })
-              ).describe("Array com exatamente 7 dias de treino (MONDAY a SUNDAY)"),
+              workoutDays: z
+                .array(
+                  z.object({
+                    name: z
+                      .string()
+                      .describe("Nome do dia (ex: Peito e Tríceps, Descanso)"),
+                    weekDay: z.enum(WeekDay).describe("Dia da semana"),
+                    isRestDay: z
+                      .boolean()
+                      .describe(
+                        "Se é dia de descanso (true) ou treino (false)",
+                      ),
+                    estimatedDurationInSeconds: z
+                      .number()
+                      .describe(
+                        "Duração estimada em segundos (0 para descanso)",
+                      ),
+                    coverImageUrl: z
+                      .string()
+                      .url()
+                      .describe("URL da imagem de capa"),
+                    exercises: z
+                      .array(
+                        z.object({
+                          order: z.number().min(0),
+                          name: z.string().trim().min(1),
+                          sets: z.number().min(1),
+                          reps: z.number().min(1),
+                          restTimeInSeconds: z.number().min(1),
+                        }),
+                      )
+                      .describe(
+                        "Lista de exercícios (vazia para dias de descanso)",
+                      ),
+                  }),
+                )
+                .describe(
+                  "Array com exatamente 7 dias de treino (MONDAY a SUNDAY)",
+                ),
             }),
             execute: async (input) => {
               const usecase = new CreateWorkoutPlan();

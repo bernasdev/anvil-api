@@ -51,7 +51,7 @@ export const GetHomeDataParamsSchema = z.object({
 });
 
 export const GetHomeDataResponseSchema = z.object({
-  activeWorkoutPlanId: z.uuid(),
+  activeWorkoutPlanId: z.uuid().optional(),
   todayWorkoutDay: z
     .object({
       workoutPlanId: z.uuid(),
@@ -162,6 +162,7 @@ export const GetWorkoutDayResponseSchema = z.object({
   weekDay: z.enum(WeekDay),
   sessions: z.array(
     z.object({
+      id: z.uuid(),
       workoutDayId: z.uuid(),
       startedAt: z.iso.date().optional(),
       completedAt: z.iso.date().optional(),

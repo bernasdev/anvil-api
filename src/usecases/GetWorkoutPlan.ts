@@ -32,6 +32,7 @@ export class GetWorkoutPlan {
               select: { exercises: true },
             },
           },
+          orderBy: { weekDay: "asc" },
         },
       },
     });

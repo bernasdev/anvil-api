@@ -3,7 +3,6 @@ import timezone from "dayjs/plugin/timezone.js";
 import utc from "dayjs/plugin/utc.js";
 import weekday from "dayjs/plugin/weekday.js";
 
-import { NotFoundError } from "../errors/index.js";
 import { WeekDay } from "../generated/prisma/enums.js";
 import { prisma } from "../lib/db.js";
 
@@ -18,7 +17,7 @@ interface InputDto {
 }
 
 interface OutputDto {
-  activeWorkoutPlanId: string;
+  activeWorkoutPlanId?: string;
   todayWorkoutDay?: {
     workoutPlanId: string;
     id: string;
@@ -61,11 +60,7 @@ export class GetHomeData {
       },
     });
 
-    if (!activeWorkoutPlan) {
-      throw new NotFoundError("Active workout plan not found");
-    }
-
-    const todayWorkoutDay = activeWorkoutPlan.workoutDays.find(
+    const todayWorkoutDay = activeWorkoutPlan?.workoutDays.find(
       (day) => day.weekDay === weekDayOfTargetDate,
     );
 
@@ -76,7 +71,8 @@ export class GetHomeData {
           name: todayWorkoutDay.name,
           isRest: todayWorkoutDay.isRestDay,
           weekDay: todayWorkoutDay.weekDay,
-          estimatedDurationInSeconds: todayWorkoutDay.estimatedDurationInSeconds,
+          estimatedDurationInSeconds:
+            todayWorkoutDay.estimatedDurationInSeconds,
           coverImageUrl: todayWorkoutDay.coverImageUrl,
           exercisesCount: todayWorkoutDay.exercises.length,
         }
@@ -119,14 +115,17 @@ export class GetHomeData {
     const workoutStreak = await this.calculateStreak(dto.userId, userTz);
 
     return {
-      activeWorkoutPlanId: activeWorkoutPlan.id,
+      activeWorkoutPlanId: activeWorkoutPlan?.id,
       todayWorkoutDay: todayWorkoutDayFormatted ?? undefined,
       workoutStreak,
       consistencyByDay,
     };
   }
 
-  private async calculateStreak(userId: string, userTz: string): Promise<number> {
+  private async calculateStreak(
+    userId: string,
+    userTz: string,
+  ): Promise<number> {
     const sessions = await prisma.workoutSession.findMany({
       where: {
         workoutDay: {
