@@ -159,7 +159,7 @@ app.route({
 });
 
 try {
-  await app.listen({ port: env.PORT || 8080 });
+  await app.listen({ host: "0.0.0.0" ,port: env.PORT || 8080 });
 } catch (err) {
   app.log.error(err);
   process.exit(1);
